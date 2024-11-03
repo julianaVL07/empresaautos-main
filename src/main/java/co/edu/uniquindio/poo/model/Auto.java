@@ -20,8 +20,7 @@ public class Auto extends Vehiculo implements ICosto{
     @Override
     public double calcularCosto(){
         double tarifaBase=40000;
-        int dias=reserva.getDias();
-        double total=tarifaBase*dias;
+        double total=tarifaBase;
         return total;
         
     }

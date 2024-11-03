@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 
 import co.edu.uniquindio.poo.App;
 import co.edu.uniquindio.poo.controller.reservaController;
+import co.edu.uniquindio.poo.model.Auto;
 import co.edu.uniquindio.poo.model.Camioneta;
 import co.edu.uniquindio.poo.model.Cliente;
 import co.edu.uniquindio.poo.model.Moto;
@@ -20,10 +21,23 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class reservaViewController {
 
     App app;
+
+    @FXML
+    private TableColumn<Reserva, Cliente> columnCliente;
+
+    @FXML
+    private TableColumn<Reserva, Integer> columnDiasReserva;
+
+    @FXML
+    private TableColumn<Reserva, Vehiculo> columnVehiculo;
+
+    @FXML
+    private TableColumn<Reserva, Double> columnCosto;
     @FXML
     private ResourceBundle resources;
 
@@ -31,16 +45,10 @@ public class reservaViewController {
     private URL location;
 
     @FXML
-    private TableColumn<?, ?> columnCliente;
-
-    @FXML
     private Button btnLimpiar;
 
     @FXML
     private TableView<Reserva> tabReserva; // Cambiar a Reserva para poder usar reservas
-
-    @FXML
-    private TableColumn<?, ?> columnDiasReserva;
 
     @FXML
     private Button btnCrearReserva;
@@ -59,12 +67,6 @@ public class reservaViewController {
 
     @FXML
     private Button btnEliminar;
-
-    @FXML
-    private TableColumn<?, ?> columnVehiculo;
-
-    @FXML
-    private TableColumn<?, ?> columnCosto;
 
     @FXML
     private Button btnActualizar;
@@ -92,6 +94,12 @@ public class reservaViewController {
     assert columnVehiculo != null : "fx:id=\"columnVehiculo\" was not injected: check your FXML file 'reserva.fxml'.";
     assert columnCosto != null : "fx:id=\"columnCosto\" was not injected: check your FXML file 'reserva.fxml'.";
     assert btnActualizar != null : "fx:id=\"btnActualizar\" was not injected: check your FXML file 'reserva.fxml'.";
+
+    // Configurar las columnas del TableView con las propiedades de Reserva
+    columnCliente.setCellValueFactory(new PropertyValueFactory<>("cliente"));
+    columnDiasReserva.setCellValueFactory(new PropertyValueFactory<>("diasReserva"));
+    columnVehiculo.setCellValueFactory(new PropertyValueFactory<>("vehiculo"));
+    columnCosto.setCellValueFactory(new PropertyValueFactory<>("costo"));
 
     // Cargar datos en los ComboBox
     cargarDatosEnComboBoxes(); // Llama a este método para cargar datos
@@ -123,33 +131,43 @@ public class reservaViewController {
         // Cargar clientes
         ObservableList<Cliente> clientes = FXCollections.observableArrayList(
             new Cliente("Juan Perez", "123456", null),
-            new Cliente("Ana Gomez", "66666", null)
+            new Cliente("Ana Gomez", "66666", null),
+            new Cliente("Laura Lopera", "2345", null)
         );
         txtListaClientes.setItems(clientes);
     
         // Cargar vehículos
         ObservableList<Vehiculo> vehiculos = FXCollections.observableArrayList(
             new Moto("ABC123", "Yamaha", "MT-07", 2020, 0, null, TipoCaja.AUTOMATICO),
-            new Camioneta("XYZ789", "Toyota", "Hilux", 2021, 1000, null)
+            new Camioneta("XYZ789", "Toyota", "Hilux", 2021, 1000, null),
+            new Auto ("ABC123", "Chevrolet", "Spar", 2020,4, null)
         );
         txtListaVehiculo.setItems(vehiculos);
     }
 
     @FXML
     void crearReservaAction(ActionEvent event) {
+    try {
         int dias = Integer.parseInt(txtDiasReserva.getText());
         Vehiculo vehiculo = txtListaVehiculo.getValue();
         Cliente cliente = txtListaClientes.getValue();
 
-        if (controller.crearReserva(dias, cliente, vehiculo)) {
-            // Actualizar la tabla y el costo total
-            txtCostoTotal.setText(String.valueOf(controller.calcularCosto(vehiculo)));
-            // Limpiar campos
-            limpiarCampos();
-            actualizarTablaReservas();
+        if (cliente != null && vehiculo != null) {
+            if (controller.crearReserva(dias, cliente, vehiculo)) {
+                txtCostoTotal.setText(String.valueOf(controller.calcularCosto(vehiculo)));
+                limpiarCampos();
+                actualizarTablaReservas();
+            } else {
+                // Mostrar un mensaje de error al usuario
+            }
         } else {
-            // Mostrar un mensaje de error al usuario
+            // Mostrar mensaje de selección de cliente y vehículo
         }
+    } catch (NumberFormatException e) {
+        // Manejar el error si el texto no es un número válido
+        txtDiasReserva.setText("Error: Ingrese un número válido");
+    }
+
     }
 
     @FXML

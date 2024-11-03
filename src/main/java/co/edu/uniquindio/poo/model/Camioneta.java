@@ -19,7 +19,7 @@ public class Camioneta extends Vehiculo implements ICosto {
     //Metodo de costo de la camioneta
     @Override
     public double calcularCosto() {
-        double tarifaBase= 20.000;
+        double tarifaBase= 20000;
         double porcentajeExtraPorTonelada= 0.05;
         double adicional=tarifaBase*capacidadCarga*porcentajeExtraPorTonelada;
         double total=tarifaBase+adicional;
