@@ -28,6 +28,9 @@ public class reservaViewController {
     App app;
 
     @FXML
+    private TableView<Reserva> tabReserva;
+
+    @FXML
     private TableColumn<Reserva, Cliente> columnCliente;
 
     @FXML
@@ -46,9 +49,6 @@ public class reservaViewController {
 
     @FXML
     private Button btnLimpiar;
-
-    @FXML
-    private TableView<Reserva> tabReserva; // Cambiar a Reserva para poder usar reservas
 
     @FXML
     private Button btnCrearReserva;
@@ -95,9 +95,8 @@ public class reservaViewController {
     assert columnCosto != null : "fx:id=\"columnCosto\" was not injected: check your FXML file 'reserva.fxml'.";
     assert btnActualizar != null : "fx:id=\"btnActualizar\" was not injected: check your FXML file 'reserva.fxml'.";
 
-    // Configurar las columnas del TableView con las propiedades de Reserva
     columnCliente.setCellValueFactory(new PropertyValueFactory<>("cliente"));
-    columnDiasReserva.setCellValueFactory(new PropertyValueFactory<>("diasReserva"));
+    columnDiasReserva.setCellValueFactory(new PropertyValueFactory<>("diasReserva")); 
     columnVehiculo.setCellValueFactory(new PropertyValueFactory<>("vehiculo"));
     columnCosto.setCellValueFactory(new PropertyValueFactory<>("costo"));
 
@@ -147,27 +146,26 @@ public class reservaViewController {
 
     @FXML
     void crearReservaAction(ActionEvent event) {
-    try {
-        int dias = Integer.parseInt(txtDiasReserva.getText());
-        Vehiculo vehiculo = txtListaVehiculo.getValue();
-        Cliente cliente = txtListaClientes.getValue();
-
-        if (cliente != null && vehiculo != null) {
-            if (controller.crearReserva(dias, cliente, vehiculo)) {
-                txtCostoTotal.setText(String.valueOf(controller.calcularCosto(vehiculo)));
-                limpiarCampos();
-                actualizarTablaReservas();
+        try {
+            int dias = Integer.parseInt(txtDiasReserva.getText());
+            Vehiculo vehiculo = txtListaVehiculo.getValue();
+            Cliente cliente = txtListaClientes.getValue();
+    
+            if (cliente != null && vehiculo != null) {
+                if (controller.crearReserva(dias, cliente, vehiculo)) {
+                    txtCostoTotal.setText(String.valueOf(controller.calcularCosto(vehiculo)));
+                    limpiarCampos();
+                    actualizarTablaReservas(); // Actualiza la tabla tras crear la reserva
+                    tabReserva.refresh();
+                } else {
+                    System.out.println("No se pudo crear la reserva. Verifique los datos.");
+                }
             } else {
-                // Mostrar un mensaje de error al usuario
+                System.out.println("Debe seleccionar un cliente y un vehículo.");
             }
-        } else {
-            // Mostrar mensaje de selección de cliente y vehículo
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Ingrese un número válido para los días de reserva.");
         }
-    } catch (NumberFormatException e) {
-        // Manejar el error si el texto no es un número válido
-        txtDiasReserva.setText("Error: Ingrese un número válido");
-    }
-
     }
 
     @FXML
@@ -183,20 +181,43 @@ public class reservaViewController {
 
     @FXML
     void actualizarAction(ActionEvent event) {
-        // Implementar la lógica para actualizar una reserva seleccionada
-        Reserva reservaSeleccionada = tabReserva.getSelectionModel().getSelectedItem();
-        if (reservaSeleccionada != null) {
-            int dias = Integer.parseInt(txtDiasReserva.getText());
+    Reserva reservaSeleccionada = tabReserva.getSelectionModel().getSelectedItem();
+    if (reservaSeleccionada != null) {
+        // Validar y obtener los nuevos valores
+        String diasStr = txtDiasReserva.getText();
+        if (diasStr.isEmpty() || !diasStr.matches("\\d+")) {
+            System.out.println("Error: Ingrese un número válido para los días de reserva.");
+            return; // Salir del método si hay un error
+        }
+
+        try {
+            int dias = Integer.parseInt(diasStr);
             Vehiculo vehiculo = txtListaVehiculo.getValue();
             Cliente cliente = txtListaClientes.getValue();
 
-            controller.actualizarReserva(reservaSeleccionada, dias, cliente, vehiculo);
-            actualizarTablaReservas();
-        } else {
-            // Mostrar un mensaje de error al usuario
-        }
-    }
+            if (vehiculo == null || cliente == null) {
+                System.out.println("Error: Debe seleccionar un cliente y un vehículo.");
+                return; // Salir del método si hay un error
+            }
 
+            // Actualizar la reserva
+            boolean exito = controller.actualizarReserva(reservaSeleccionada, dias, cliente, vehiculo);
+            if (exito) {
+                // Actualizar la tabla y limpiar los campos
+                actualizarTablaReservas();
+                limpiarCampos();
+                System.out.println("Reserva actualizada exitosamente.");
+            } else {
+                System.out.println("No se pudo actualizar la reserva.");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Ingrese un número válido para los días de reserva.");
+        }
+    } else {
+        System.out.println("Debe seleccionar una reserva para actualizar.");
+    }
+    }
+    
     @FXML
     void limpiarAction(ActionEvent event) {
         limpiarCampos();
@@ -211,8 +232,8 @@ public class reservaViewController {
     }
 
     private void actualizarTablaReservas() {
-        ObservableList<Reserva> listaReservas = controller.getReservas();
-        tabReserva.setItems(listaReservas);
+        tabReserva.setItems(controller.getReservas()); // Asigna la lista actual a la tabla
+        tabReserva.refresh(); // Esto puede ayudar a actualizar la vista
     }
 
     public void setApp(App app){

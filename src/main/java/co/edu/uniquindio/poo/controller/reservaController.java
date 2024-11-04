@@ -20,6 +20,10 @@ public class reservaController {
     private Empresa empresa;
     private ObservableList<Reserva> reservas;
 
+    public ObservableList<Reserva> getReservas() {
+        return reservas;
+    }
+
     public reservaController() {
         this.empresa = new Empresa("Mi Empresa");
         this.reservas = FXCollections.observableArrayList();
@@ -70,7 +74,9 @@ public class reservaController {
 
     public boolean crearReserva(int dias, Cliente cliente, Vehiculo vehiculo) {
         if (cliente != null && vehiculo != null) {
+            double costo = calcularCosto(vehiculo) * dias; // Calcula el costo total basado en los días
             Reserva nuevaReserva = new Reserva(dias, "Reserva " + reservas.size(), cliente, vehiculo);
+            nuevaReserva.setCosto(costo); // Asigna el costo calculado a la reserva
             if (empresa.agregarReserva(nuevaReserva)) {
                 reservas.add(nuevaReserva);
                 return true; // Reserva creada exitosamente
@@ -89,18 +95,21 @@ public class reservaController {
         return false; // Falló la eliminación de la reserva
     }
 
-    public boolean actualizarReserva(Reserva reservaActual, int dias, Cliente cliente, Vehiculo vehiculo) {
-        if (reservaActual != null) {
-            reservaActual.setDias(dias);
-            reservaActual.setCliente(cliente);
-            reservaActual.setVehiculo(vehiculo);
-            return true; // Reserva actualizada exitosamente
+    public boolean actualizarReserva(Reserva reserva, int dias, Cliente cliente, Vehiculo vehiculo) {
+        // Verifica que la reserva no sea nula
+        if (reserva == null) {
+            return false; // No se puede actualizar si la reserva es nula
         }
-        return false; // Falló la actualización de la reserva
-    }
-
-    public ObservableList<Reserva> getReservas() {
-        return reservas; // Retorna la lista de reservas para ser mostrada en la vista
+    
+        // Actualiza los campos de la reserva
+        reserva.setDiasReserva(dias);
+        reserva.setCliente(cliente);
+        reserva.setVehiculo(vehiculo);
+    
+        // Aquí podrías agregar lógica adicional para persistir los cambios en la base de datos
+        // Por ejemplo, si usas una lista, asegúrate de que la lista esté actualizada.
+    
+        return true; // Retorna verdadero si la actualización fue exitosa
     }
 
     public double calcularCosto(Vehiculo vehiculo) {

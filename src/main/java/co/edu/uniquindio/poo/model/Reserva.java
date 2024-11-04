@@ -2,23 +2,32 @@ package co.edu.uniquindio.poo.model;
 
 public class Reserva {
     private String nombre;
-    private int dias;
+    private int diasReserva;
     private Cliente cliente;
     private Vehiculo vehiculo;
+    private double costo;
 
-    public Reserva(int dias, String nombre, Cliente cliente,Vehiculo vehiculo) {
-        this.dias = dias;
+    public Reserva(int diasReserva, String nombre, Cliente cliente,Vehiculo vehiculo) {
+        this.diasReserva = diasReserva;
         this.nombre=nombre;
         this.cliente=cliente;
         this.vehiculo=vehiculo;
     }
 
-    public int getDias() {
-        return dias;
+    public double getCosto() {
+        return costo;
     }
 
-    public void setDias(int dias) {
-        this.dias = dias;
+    public void setCosto(double costo) {
+         this.costo=costo;
+    }
+
+    public int getDiasReserva() {
+        return diasReserva;
+    }
+
+    public void setDiasReserva(int diasReserva) {
+        this.diasReserva = diasReserva;
     }
 
     public String getNombre() {
@@ -47,7 +56,7 @@ public class Reserva {
 
     @Override
     public String toString() {
-        return "\nReserva: nombre: " + nombre + ", dias: " + dias +"vehiculo= "+vehiculo.getMatricula()+" está asociada con "+cliente.getNombre()+"\n";
+        return "\nReserva: nombre: " + nombre + ", dias: " + diasReserva +"vehiculo= "+vehiculo.getMatricula()+" está asociada con "+cliente.getNombre()+"\n";
     }
     
 
